@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="#{list.clients.title}">List of Clients</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<header th:replace="~{fragments/header :: siteHeader}"></header>
+
+<main class="container mt-4">
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <span th:text="#{${errorMessage}}"></span>
+    </div>
+
+    <h2 th:text="#{list.clients.title}">List of Clients</h2>
+
+    <div th:replace="~{fragments/searchForm :: clientsSearchFormFragment('/clients')}"></div>
+
+
+    <a th:href="@{/clients/new}" sec:authorize="hasAnyRole('ADMIN','EMPLOYEE')"
+       class="btn btn-success mb-3" th:text="#{action.addClient}">Add Client</a>
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th th:text="#{client.email}">Email</th>
+            <th th:text="#{client.name}">Name</th>
+            <th th:text="#{client.balance}">Balance</th>
+            <th th:text="#{client.password}">Password</th>
+            <th th:text="#{action.actions}">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="client : ${clients}">
+            <td th:text="${client.email}">client@example.com</td>
+            <td th:text="${client.name}">John Doe</td>
+            <td th:text="${client.balance}">100.00</td>
+            <td th:text="${client.password}">••••••</td>
+            <td>
+                <a th:href="@{/clients/edit/{email}(email=${client.email})}"
+                   class="btn btn-sm btn-primary" th:text="#{action.edit}">Edit</a>
+                <a th:href="@{/clients/delete/{email}(email=${client.email})}"
+                   sec:authorize="hasAnyRole('ADMIN','EMPLOYEE')"
+                   class="btn btn-sm btn-danger"
+                   th:onclick="return confirm('[[#{confirm.delete.client(${client.email})}]]')"
+                   th:text="#{action.delete}">Delete</a>
+                <span th:if="${!client.blocked}">
+                    <form th:action="@{/admin/block}" method="post" style="display:inline;">
+                        <input type="hidden" name="userType" value="client"/>
+                        <input type="hidden" name="email" th:value="${client.email}"/>
+                        <input type="hidden" name="redirect" th:value="@{/clients}"/>
+                        <button type="submit" class="btn btn-sm btn-warning"
+                                th:onclick="return confirm('[[#{confirm.block.client(${client.email})}]]')"
+                                th:text="#{action.block}">
+                            Block
+                        </button>
+                    </form>
+                </span>
+                <span th:if="${client.blocked}">
+                    <form th:action="@{/admin/unblock}" method="post" style="display:inline;">
+                        <input type="hidden" name="userType" value="client"/>
+                        <input type="hidden" name="email" th:value="${client.email}"/>
+                        <input type="hidden" name="redirect" th:value="@{/clients}"/>
+                        <button type="submit" class="btn btn-sm btn-success"
+                                th:onclick="return confirm('[[#{confirm.unblock.client(${client.email})}]]')"
+                                th:text="#{action.unblock}">
+                            Unblock
+                        </button>
+                    </form>
+                </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="~{fragments/pagination :: paginationFragment(page=${page}, size=${size}, searchField=${searchField}, searchValue=${searchValue}, sortField=${sortField}, sortDir=${sortDir}, paginationUrl='/clients')}"></div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

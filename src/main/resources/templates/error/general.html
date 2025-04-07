@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{error.general.title}">Error</title>
+</head>
+<body>
+<h1 th:text="#{error.general.title}">Error</h1>
+<p th:text="${errorMessage}">#{error.general.title}</p>
+<p>
+    <button type="button" class="btn btn-secondary mb-3" onclick="goBack()" th:text="#{action.back}">Back</button>
+</p>
+<script>
+    function goBack() {
+        history.back();
+    }
+</script>
+</body>
+</html>

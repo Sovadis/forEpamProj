@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="#{list.employees.title}">List of Employees</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<header th:replace="~{fragments/header :: siteHeader}"></header>
+
+<main class="container mt-4">
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <span th:text="#{${errorMessage}}"></span>
+    </div>
+
+    <h2 th:text="#{list.employees.title}">List of Employees</h2>
+
+    <div th:replace="~{fragments/searchForm :: employeesSearchFormFragment('/employees')}"></div>
+
+
+    <a th:href="@{/employees/new}" sec:authorize="hasRole('ADMIN')" class="btn btn-success mb-3"
+       th:text="#{action.addEmployee}">Add Employee</a>
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th th:text="#{employee.email}">Email</th>
+            <th th:text="#{employee.name}">Name</th>
+            <th th:text="#{employee.phone}">Phone</th>
+            <th th:text="#{employee.birthDate}">Birth Date</th>
+            <th th:text="#{employee.password}">Password</th>
+            <th th:text="#{action.actions}">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="employee : ${employees}">
+            <td th:text="${employee.email}">jane@corp.com</td>
+            <td th:text="${employee.name}">Jane</td>
+            <td th:text="${employee.phone}">123456789</td>
+            <td th:text="${employee.birthDate}">1990-01-01</td>
+            <td th:text="${employee.password}">••••••</td>
+            <td th:inline="javascript">
+                <a th:href="@{/employees/edit/{email}(email=${employee.email})}"
+                   sec:authorize="hasRole('ADMIN')"
+                   class="btn btn-sm btn-primary" th:text="#{action.edit}">Edit</a>
+                <a th:href="@{/employees/delete/{email}(email=${employee.email})}"
+                   sec:authorize="hasRole('ADMIN')"
+                   class="btn btn-sm btn-danger"
+                   th:onclick="return confirm('[[#{confirm.delete.employee(${employee.email})}]]')"
+                   th:text="#{action.delete}">Delete</a>
+                <span th:if="${!employee.blocked}">
+        <form th:action="@{/admin/block}" method="post" style="display:inline;">
+            <input type="hidden" name="userType" value="employee"/>
+            <input type="hidden" name="email" th:value="${employee.email}"/>
+            <input type="hidden" name="redirect" th:value="@{/employees}"/>
+            <button type="submit" class="btn btn-sm btn-warning"
+                    th:onclick="return confirm('[[#{confirm.block.employee(${employee.email})}]]')"
+                    th:text="#{action.block}">
+                Block
+            </button>
+        </form>
+    </span>
+                <span th:if="${employee.blocked}">
+        <form th:action="@{/admin/unblock}" method="post" style="display:inline;">
+            <input type="hidden" name="userType" value="employee"/>
+            <input type="hidden" name="email" th:value="${employee.email}"/>
+            <input type="hidden" name="redirect" th:value="@{/employees}"/>
+            <button type="submit" class="btn btn-sm btn-success"
+                    th:onclick="return confirm('[[#{confirm.unblock.employee(${employee.email})}]]')"
+                    th:text="#{action.unblock}">
+                Unblock
+            </button>
+        </form>
+    </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="~{fragments/pagination :: paginationFragment(page=${page}, size=${size}, searchField=${searchField}, searchValue=${searchValue}, sortField=${sortField}, sortDir=${sortDir}, paginationUrl='/employees')}"></div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="searchFormFragment(actionUrl)">
+    <form th:action="@{${actionUrl}}" method="get" class="row g-3 align-items-center mb-3">
+        <div class="col-auto">
+            <select name="searchField" class="form-select">
+                <option value="name" th:selected="${searchField} == 'name'" th:text="#{search.field.title}">Title
+                </option>
+                <option value="author" th:selected="${searchField} == 'author'" th:text="#{search.field.author}">
+                    Author
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="searchValue" class="form-control" th:placeholder="#{search.placeholder}"
+                   th:value="${searchValue != null ? searchValue : ''}"/>
+        </div>
+        <div class="col-auto">
+            <select name="sortField" class="form-select">
+                <option value="name" th:selected="${sortField} == 'name'" th:text="#{sort.by.title}">Sort by Title
+                </option>
+                <option value="price" th:selected="${sortField} == 'price'" th:text="#{sort.by.price}">Sort by Price
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <select name="sortDir" class="form-select">
+                <option value="asc" th:selected="${sortDir} == 'asc'" th:text="#{sort.asc}">Ascending</option>
+                <option value="desc" th:selected="${sortDir} == 'desc'" th:text="#{sort.desc}">Descending</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="size" class="form-control" th:value="${size != null ? size : 5}" min="1"/>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary" th:text="#{button.apply}">Apply</button>
+        </div>
+    </form>
+</div>
+
+<div th:fragment="ordersSearchFormFragment(actionUrl)">
+    <form th:action="@{${actionUrl}}" method="get" class="row g-3 align-items-center mb-3">
+        <div class="col-auto">
+            <select name="searchField" class="form-select">
+                <option value="clientEmail" sec:authorize="!hasRole('CLIENT')"
+                        th:selected="${searchField} == 'clientEmail'"
+                        th:text="#{order.search.field.clientEmail}">Client Email
+                </option>
+                <option value="employeeEmail" th:selected="${searchField} == 'employeeEmail'"
+                        th:text="#{order.search.field.employeeEmail}">Employee Email
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="searchValue" class="form-control" th:placeholder="#{search.placeholder}"
+                   th:value="${searchValue != null ? searchValue : ''}"/>
+        </div>
+        <div class="col-auto">
+            <select name="sortField" class="form-select">
+                <option value="orderDate" th:selected="${sortField} == 'orderDate'"
+                        th:text="#{sort.by.orderDate}">Sort by Order Date
+                </option>
+                <option value="price" th:selected="${sortField} == 'price'"
+                        th:text="#{sort.by.price}">Sort by Price
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <select name="sortDir" class="form-select">
+                <option value="asc" th:selected="${sortDir} == 'asc'" th:text="#{sort.asc}">Ascending</option>
+                <option value="desc" th:selected="${sortDir} == 'desc'" th:text="#{sort.desc}">Descending</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="size" class="form-control" th:value="${size != null ? size : 5}" min="1"/>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary" th:text="#{button.apply}">Apply</button>
+        </div>
+    </form>
+</div>
+
+<div th:fragment="employeesSearchFormFragment(actionUrl)">
+    <form th:action="@{${actionUrl}}" method="get" class="row g-3 align-items-center mb-3">
+        <div class="col-auto">
+            <select name="searchField" class="form-select">
+                <option value="name" th:selected="${searchField} == 'name'"
+                        th:text="#{employee.search.field.name}">Name
+                </option>
+                <option value="email" th:selected="${searchField} == 'email'"
+                        th:text="#{employee.search.field.email}">Email
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="searchValue" class="form-control" th:placeholder="#{search.placeholder}"
+                   th:value="${searchValue != null ? searchValue : ''}"/>
+        </div>
+        <div class="col-auto">
+            <select name="sortField" class="form-select">
+                <option value="name" th:selected="${sortField} == 'name'" th:text="#{sort.by.name}">Sort by Name
+                </option>
+                <option value="email" th:selected="${sortField} == 'email'" th:text="#{sort.by.email}">Sort by Email
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <select name="sortDir" class="form-select">
+                <option value="asc" th:selected="${sortDir} == 'asc'" th:text="#{sort.asc}">Ascending</option>
+                <option value="desc" th:selected="${sortDir} == 'desc'" th:text="#{sort.desc}">Descending</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="size" class="form-control" th:value="${size != null ? size : 5}" min="1"/>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary" th:text="#{button.apply}">Apply</button>
+        </div>
+    </form>
+</div>
+
+<div th:fragment="clientsSearchFormFragment(actionUrl)">
+    <form th:action="@{${actionUrl}}" method="get" class="row g-3 align-items-center mb-3">
+        <div class="col-auto">
+            <select name="searchField" class="form-select">
+                <option value="name" th:selected="${searchField} == 'name'" th:text="#{client.search.field.name}">Name
+                </option>
+                <option value="email" th:selected="${searchField} == 'email'" th:text="#{client.search.field.email}">
+                    Email
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="searchValue" class="form-control" th:placeholder="#{search.placeholder}"
+                   th:value="${searchValue != null ? searchValue : ''}"/>
+        </div>
+        <div class="col-auto">
+            <select name="sortField" class="form-select">
+                <option value="name" th:selected="${sortField} == 'name'" th:text="#{sort.by.name}">Sort by Name
+                </option>
+                <option value="email" th:selected="${sortField} == 'email'" th:text="#{sort.by.email}">Sort by Email
+                </option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <select name="sortDir" class="form-select">
+                <option value="asc" th:selected="${sortDir} == 'asc'" th:text="#{sort.asc}">Ascending</option>
+                <option value="desc" th:selected="${sortDir} == 'desc'" th:text="#{sort.desc}">Descending</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="size" class="form-control" th:value="${size != null ? size : 5}" min="1"/>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary" th:text="#{button.apply}">Apply</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="#{login.title}">Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<header th:replace="~{fragments/header :: siteHeader}"></header>
+
+<main class="container mt-4">
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <span th:text="#{${errorMessage}}"></span>
+    </div>
+
+    <h2 th:text="#{login.header}">Sign In</h2>
+    <form th:action="@{/login}" th:object="${loginForm}" method="post" novalidate>
+        <div class="mb-3">
+            <label for="email" class="form-label" maxlength="100" th:text="#{login.email}">Email:</label>
+            <input type="email" th:field="*{email}" id="email" class="form-control" aria-describedby="emailError"/>
+            <div id="emailError" class="text-danger"
+                 th:if="${#fields.hasErrors('email')}"
+                 th:errors="*{email}"></div>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label" maxlength="50" th:text="#{login.password}">Password:</label>
+            <input type="password" th:field="*{password}" id="password" class="form-control"
+                   aria-describedby="passwordError"/>
+            <div id="passwordError" class="text-danger"
+                 th:if="${#fields.hasErrors('password')}"
+                 th:errors="*{password}"></div>
+        </div>
+        <div class="mb-3" th:if="${#fields.hasGlobalErrors()}">
+            <div class="text-danger"
+                 th:each="err : ${#fields.globalErrors}"
+                 th:text="${err}"></div>
+        </div>
+        <button type="submit" class="btn btn-primary" th:text="#{login.submit}">Login</button>
+    </form>
+    <p class="mt-3" th:text="#{login.noAccount}">No account?</p>
+    <p><a th:href="@{/register}" th:text="#{login.register}">Register</a></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

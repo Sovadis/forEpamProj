@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{error.already_exists.title}">Already Exists</title>
+    <script>
+        function goBack() {
+            history.back();
+        }
+    </script>
+</head>
+<body>
+<h1 th:text="#{error.already_exists.title}">Already Exists</h1>
+<p th:text="${errorMessage}">#{error.already_exists.title}</p>
+<p>
+    <button type="button" class="btn btn-secondary mb-3" onclick="goBack()" th:text="#{action.back}">Back</button>
+</p>
+</body>
+</html>
