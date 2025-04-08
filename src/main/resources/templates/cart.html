@@ -18,7 +18,7 @@
     <div class="mb-3">
         <a th:href="@{/}" class="btn btn-info" th:text="#{action.home}">Home</a>
         <a th:href="@{/cart/clear}" class="btn btn-danger"
-           th:onclick="return confirm('#{confirm.clearCart}')"
+           th:onclick="return confirm('[[#{confirm.clearCart}]]')"
            th:text="#{cart.clear}">Clear Cart</a>
     </div>
 
@@ -54,7 +54,7 @@
                 <td>
                     <a th:href="@{|/cart/remove?name=${entry.key.book != null ? entry.key.book.name : ''}|}"
                        class="btn btn-sm btn-danger"
-                       th:onclick="return confirm('#{confirm.removeFromCart}')" th:text="#{action.delete}">Delete</a>
+                       th:onclick="return confirm('[[#{confirm.removeFromCart}]]')" th:text="#{action.delete}">Delete</a>
                 </td>
             </tr>
             </tbody>

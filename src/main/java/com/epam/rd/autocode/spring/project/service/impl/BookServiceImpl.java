@@ -86,7 +86,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public void deleteBookByName(String name) {
         log.info("Deleting book with name: {}", name);
         bookRepository.findByName(name).ifPresent(bookRepository::delete);

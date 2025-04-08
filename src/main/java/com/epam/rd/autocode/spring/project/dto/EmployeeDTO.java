@@ -22,7 +22,6 @@ public class EmployeeDTO {
     private String phone;
 
     @NotNull(message = "{validation.required}")
-    @Past(message = "{validation.birthDate.past}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @PastOrPresent(message = "{validation.birthDate.past}")
     private LocalDate birthDate;
