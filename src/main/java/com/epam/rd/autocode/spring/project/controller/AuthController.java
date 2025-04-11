@@ -47,6 +47,9 @@ public class AuthController {
     private final ClientService clientService;
     private final EmailService emailService;
 
+    private static final int MAX_FAILED_ATTEMPTS = 3;
+    private static final long BLOCK_DURATION_MS = 10_000L;
+
     private static final Map<String, LoginAttemptInfo> loginAttempts = new ConcurrentHashMap<>();
 
     public AuthController(AuthenticationManager authenticationManager,
@@ -295,9 +298,9 @@ public class AuthController {
     private boolean isBlocked(String email) {
         LoginAttemptInfo info = loginAttempts.get(email);
         if (info == null) return false;
-        if (info.attempts < 3) return false;
+        if (info.attempts < MAX_FAILED_ATTEMPTS) return false;
         long sinceLastFail = System.currentTimeMillis() - info.lastFailTime;
-        if (sinceLastFail < 10000) {
+        if (sinceLastFail < BLOCK_DURATION_MS) {
             return true;
         } else {
             loginAttempts.remove(email);
@@ -315,7 +318,7 @@ public class AuthController {
         }
         info.lastFailTime = System.currentTimeMillis();
         loginAttempts.put(email, info);
-        if (info.attempts >= 3) {
+        if (info.attempts >= MAX_FAILED_ATTEMPTS) {
             log.warn("User {} is temporarily locked due to {} failed login attempts", email, info.attempts);
         }
     }

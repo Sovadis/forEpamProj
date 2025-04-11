@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private String secret = "MySuperSecretKeyMySuperSecretKeyMySuperSecretKey";
+
     @Getter
     private Key key;
 
