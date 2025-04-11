@@ -50,11 +50,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         Optional<Client> clientOpt = clientRepository.findByEmail(username);
         if (clientOpt.isPresent()) {
             Client client = clientOpt.get();
-            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(client.getRole().name()));
+
+            String pwd = client.getPassword();
+            if (pwd == null || pwd.trim().isEmpty()) {
+                pwd = "GOOGLE_PASSWORD_BOM";
+            }
+
+            String roleString = (client.getRole() == null) ? "ROLE_CLIENT" : client.getRole().name();
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(roleString));
             log.debug("Client found: {}", client.getEmail());
             return new org.springframework.security.core.userdetails.User(
                     client.getEmail(),
-                    client.getPassword(),
+                    pwd,
                     true,
                     true,
                     true,

@@ -1,8 +1,7 @@
 package com.epam.rd.autocode.spring.project.conf;
 
-import com.epam.rd.autocode.spring.project.security.CustomUserDetailsService;
-import com.epam.rd.autocode.spring.project.security.JwtAuthenticationFilter;
-import com.epam.rd.autocode.spring.project.security.UserRoleRefreshFilter;
+import com.epam.rd.autocode.spring.project.security.*;
+import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +12,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -27,11 +26,15 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOidcUserService customOidcUserService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService userDetailsService, CustomOidcUserService customOidcUserService, JwtTokenProvider jwtTokenProvider) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
+        this.customOidcUserService = customOidcUserService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Bean
@@ -40,7 +43,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/register/**", "/resources/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/", "/login", "/register",
+                                "/register/**", "/resources/**", "/h2-console/**",
+                                "/forgotPassword", "/auth/refresh",
+                                "/oauth2/**", "/login/oauth2/**", "/resetPassword").permitAll()
                         .requestMatchers("/employee/**").hasRole("EMPLOYEE")
                         .requestMatchers("/client/**").hasRole("CLIENT")
                         .anyRequest().authenticated()
@@ -49,6 +55,31 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login?logout"))
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidcUserService))
+                        .successHandler((request, response, authentication) -> {
+                            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+                            String email = oidcUser.getEmail();
+                            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                            String token = jwtTokenProvider.generateToken(userDetails);
+                            String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+                            Cookie accessCookie = new Cookie("JWT_TOKEN", token);
+                            accessCookie.setHttpOnly(true);
+                            accessCookie.setSecure(true);
+                            accessCookie.setPath("/");
+                            accessCookie.setMaxAge(3600);
+                            Cookie refreshCookie = new Cookie("JWT_REFRESH", refreshToken);
+                            refreshCookie.setHttpOnly(true);
+                            refreshCookie.setSecure(true);
+                            refreshCookie.setPath("/");
+                            refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+                            response.addCookie(accessCookie);
+                            response.addCookie(refreshCookie);
+                            log.info("OAuth2 login successful for {}, JWT cookies set", email);
+                            response.sendRedirect("/");
+                        })
+                        .failureUrl("/login?error"))
 
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
@@ -71,11 +102,5 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        log.debug("Creating BCryptPasswordEncoder");
-        return new BCryptPasswordEncoder();
     }
 }

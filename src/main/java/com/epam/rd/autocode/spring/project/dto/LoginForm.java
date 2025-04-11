@@ -2,6 +2,7 @@ package com.epam.rd.autocode.spring.project.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,8 @@ public class LoginForm {
 
     @NotBlank(message = "{validation.password.required}")
     @Size(min = 4, message = "{validation.password.size}")
+    @Pattern(regexp = "^[A-Za-z0-9]+$",
+            message = "{validation.password.chars}")
     private String password;
 
     public UsernamePasswordAuthenticationToken toAuthenticationToken() {

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,9 +20,12 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private String secret = "MySuperSecretKeyMySuperSecretKeyMySuperSecretKey";
+    @Getter
     private Key key;
 
-    private long validityInMilliseconds = 30000000;
+    private long validityInMilliseconds = 3600000; // година
+    private long refreshValidityMs = 604800000; // тиждень
+    private long resetValidityMs = 900000; // 15 хвилин
 
     @PostConstruct
     protected void init() {
@@ -74,5 +78,27 @@ public class JwtTokenProvider {
                 .collect(Collectors.toList());
 
         return new UsernamePasswordAuthenticationToken(username, null, authorities);
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshValidityMs);
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateResetToken(String email) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + resetValidityMs);
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 }

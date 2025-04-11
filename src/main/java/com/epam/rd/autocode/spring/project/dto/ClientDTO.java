@@ -1,10 +1,7 @@
 package com.epam.rd.autocode.spring.project.dto;
 
 import com.epam.rd.autocode.spring.project.model.enums.Role;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,6 +15,8 @@ public class ClientDTO {
 
     @NotBlank(message = "{validation.required}")
     @Size(min = 4, max = 100, message = "{validation.password.size}")
+    @Pattern(regexp = "^[A-Za-z0-9]+$",
+            message = "{validation.password.chars}")
     private String password;
 
     @NotBlank(message = "{validation.required}")
